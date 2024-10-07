@@ -6,7 +6,7 @@ app.use(express.json()); // JSON formatını desteklemek için
 app.post('/api/lineuptoexcel', (req, res) => {
     const { lineups } = req.body;
 
-    if (!lineup) {
+    if (!lineups) {
         return res.status(400).json({ error: 'Lineup not provided' });
     }
 
