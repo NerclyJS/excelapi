@@ -8,16 +8,12 @@ app.use(express.json()); // JSON formatını desteklemek için
 
 app.post('/api/lineuptoexcel', (req, res) => {
     const { lineups } = req.body;
-
-  
-
-    const testingo = generateExcel(lineups)
     
     if (!lineups) {
         return res.status(400).json({ error: 'Lineup not provided' });
     }
 
-    res.status(200).json({ test: "hello", sonuc: testingo });
+    res.status(200).json({ test: "hello", sonuc: 13243});
 });
 
 const port = process.env.PORT || 3000;
@@ -26,15 +22,3 @@ app.listen(port, () => {
 });
 
 
-
-function generateExcel(lineups) {
-  
-
-    const result = {
-        file_base64: 1234
-        team_names: 35352
-    };
-
-
-    return result; // Sonucu döndürüyoruz
-}
