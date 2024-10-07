@@ -3,25 +3,23 @@ const app = express();
 const exceljs = require('exceljs');
 const fs = require('fs');
 const path = require('path');
+const os = require('os'); // Geçici dosya yolu için ekledik
 
 app.use(express.json());
 
-app.post('/api/lineuptoexcel', async (req, res) => { // Burayı async olarak tanımladık
+app.post('/api/lineuptoexcel', async (req, res) => {
     const { lineups } = req.body;
 
-    if (!lineups) { // Hata kontrolünde lineups kullanılmalı
+    if (!lineups) {
         return res.status(400).json({ error: 'Lineups are not provided' });
     }
 
     try {
-        // Generate the Excel file
         const result = await generateExcel(lineups);
-        // Send the response only after the Excel file is generated
         res.status(200).json(result);
     } catch (error) {
-        // Handle any errors that occur during Excel generation
-        console.error(error); // Hata loglamak için
-        res.status(500).json({ error: 'Error generating Excel' });
+        console.error('Error processing request:', error);
+        res.status(500).json({ error: 'An error occurred while generating the Excel file.' });
     }
 });
 
@@ -42,7 +40,7 @@ async function generateExcel(lineups) {
 
         if (item.startsWith("/")) {
             currentTeam = item.substring(1);
-            teamCounter++;
+            teamCounter++; 
         } else {
             const [name, value] = item.split("+");
             if (name && value) {
@@ -92,7 +90,7 @@ async function generateExcel(lineups) {
 
     data.forEach((item) => {
         if (lastTeam !== item.team && lastTeam !== null) {
-            currentRow++;
+            currentRow++; 
         }
 
         worksheet.getCell(`A${currentRow}`).value = lastTeam === item.team ? "" : item.teamNumber;
@@ -128,20 +126,16 @@ async function generateExcel(lineups) {
         lastTeam = item.team;
     });
 
-    const filePath = path.join(__dirname, 'players.xlsx');
-    await workbook.xlsx.writeFile(filePath); // Excel dosyası yazılıyor
+    try {
+        const buffer = await workbook.xlsx.writeBuffer(); // Excel dosyasını hafızada tut
+        const teamNames = Array.from(new Set(data.filter((item) => item.team !== "").map((item) => item.team)));
 
-    const teamNames = Array.from(
-        new Set(
-            data.filter((item) => item.team !== "").map((item) => item.team)
-        )
-    );
-
-    const result = {
-        file_base64: fs.readFileSync(filePath).toString('base64'),
-        team_names: teamNames
-    };
-
-    fs.unlinkSync(filePath); // Dosya siliniyor
-    return result; // Sonucu döndürüyoruz
+        return {
+            file_base64: buffer.toString('base64'),
+            team_names: teamNames
+        };
+    } catch (error) {
+        console.error('Error generating Excel:', error);
+        throw new Error('Error generating Excel');
+    }
 }
