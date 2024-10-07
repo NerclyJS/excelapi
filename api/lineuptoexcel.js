@@ -9,11 +9,13 @@ app.use(express.json()); // JSON formatını desteklemek için
 app.post('/api/lineuptoexcel', (req, res) => {
     const { lineups } = req.body;
 
+    console.log(await generateExcel(lineups))
+    const testo = await generateExcel(lineups)
     if (!lineups) {
         return res.status(400).json({ error: 'Lineup not provided' });
     }
 
-    res.status(200).json({ lineups });
+    res.status(200).json({ test: "hello", functi: testo });
 });
 
 const port = process.env.PORT || 3000;
