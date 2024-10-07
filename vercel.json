@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/lineuptoexcel.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/lineuptoexcel",
+      "dest": "/api/lineuptoexcel.js"
+    }
+  ]
+}
